@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Atlas — Apresentação Comercial</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  /* ───────── Reset & Base ───────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #0a0b0f; color: #e8e8ec; }
+
+  /* ───────── Design Tokens ───────── */
+  :root {
+    --bg: #0a0b0f;
+    --surface: #111218;
+    --surface-2: #1a1b24;
+    --border: #222330;
+    --muted: #8b8d9e;
+    --gold-1: oklch(0.88 0.11 85);
+    --gold-2: oklch(0.78 0.13 80);
+    --gold-3: oklch(0.93 0.09 75);
+    --gold-4: oklch(0.70 0.14 90);
+    --gradient-gold: linear-gradient(135deg, var(--gold-1), var(--gold-2), var(--gold-3), var(--gold-4));
+    --silver: #a0a1ae;
+    --green: oklch(0.72 0.16 155);
+    --red: oklch(0.65 0.18 25);
+  }
+
+  /* ───────── Slide Engine ───────── */
+  .deck { position: relative; width: 100vw; height: 100vh; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 60px 80px;
+    opacity: 0; transform: translateY(40px) scale(0.97);
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none; z-index: 0;
+  }
+  .slide.active {
+    opacity: 1; transform: translateY(0) scale(1);
+    pointer-events: auto; z-index: 1;
+  }
+  .slide.prev {
+    opacity: 0; transform: translateY(-40px) scale(0.97);
+  }
+
+  /* ───────── Fragment animation ───────── */
+  .frag {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .frag.visible { opacity: 1; transform: translateY(0); }
+  .frag:nth-child(1) { transition-delay: 0.08s; }
+  .frag:nth-child(2) { transition-delay: 0.18s; }
+  .frag:nth-child(3) { transition-delay: 0.28s; }
+  .frag:nth-child(4) { transition-delay: 0.38s; }
+  .frag:nth-child(5) { transition-delay: 0.48s; }
+  .frag:nth-child(6) { transition-delay: 0.58s; }
+  .frag:nth-child(7) { transition-delay: 0.68s; }
+  .frag:nth-child(8) { transition-delay: 0.78s; }
+
+  /* ───────── Typography ───────── */
+  .text-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-red { color: var(--red); }
+  .text-green { color: var(--green); }
+  .subtitle { font-size: 11px; font-weight: 700; letter-spacing: 0.35em; text-transform: uppercase; color: var(--muted); }
+  .heading { font-size: clamp(30px, 4.5vw, 60px); font-weight: 900; text-transform: uppercase; line-height: 1.05; text-align: center; }
+  .heading-sm { font-size: clamp(24px, 3.2vw, 44px); font-weight: 900; text-transform: uppercase; line-height: 1.08; text-align: center; }
+  .subheading { font-size: clamp(20px, 2.8vw, 36px); font-weight: 800; text-transform: uppercase; line-height: 1.12; }
+  .body-text { font-size: clamp(14px, 1.5vw, 18px); color: var(--muted); line-height: 1.7; max-width: 720px; text-align: center; }
+  .small-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .quote-text { font-size: clamp(16px, 2vw, 22px); font-style: italic; color: #c8c8d0; line-height: 1.6; text-align: center; max-width: 700px; }
+
+  /* ───────── Cards / Panels ───────── */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px;
+  }
+  .panel-gold {
+    background: var(--surface);
+    border: 1px solid oklch(0.40 0.08 80);
+    border-radius: 16px; padding: 28px;
+    box-shadow: 0 0 40px -10px oklch(0.5 0.12 80 / 0.25);
+  }
+  .panel-red {
+    background: oklch(0.14 0.04 25);
+    border: 1px solid oklch(0.30 0.10 25);
+    border-radius: 16px; padding: 28px;
+  }
+
+  /* ───────── Stat ───────── */
+  .stat-number {
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 900; line-height: 1;
+  }
+  .stat-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em; color: var(--muted); margin-top: 8px; }
+
+  /* ───────── Grid ───────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 900px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; width: 100%; max-width: 1000px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; width: 100%; max-width: 1000px; }
+
+  /* ───────── Step ───────── */
+  .step-box {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px; text-align: left;
+  }
+  .step-num { font-size: 11px; font-weight: 800; letter-spacing: 0.3em; color: var(--muted); }
+  .step-title { font-size: 15px; font-weight: 700; margin-top: 6px; }
+
+  /* ───────── Logo ───────── */
+  .logo-big { width: 72px; height: 72px; object-fit: contain; margin-bottom: 20px; }
+
+  /* ───────── Progress ───────── */
+  .progress-bar {
+    position: fixed; bottom: 0; left: 0; height: 3px; z-index: 100;
+    background: var(--gradient-gold);
+    transition: width 0.4s ease;
+  }
+
+  /* ───────── Slide Counter ───────── */
+  .slide-counter {
+    position: fixed; bottom: 16px; right: 24px; z-index: 100;
+    font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.15em;
+  }
+
+  /* ───────── Nav hint ───────── */
+  .nav-hint {
+    position: fixed; bottom: 16px; left: 24px; z-index: 100;
+    font-size: 11px; color: var(--muted); opacity: 0.5;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .nav-hint kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: 700;
+    font-family: inherit;
+  }
+
+  /* ───────── Bar chart ───────── */
+  .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .bar-label { width: 130px; font-size: 13px; font-weight: 600; text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 28px; background: var(--surface-2); border-radius: 14px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 14px; display: flex; align-items: center; padding-left: 12px; font-size: 12px; font-weight: 700; }
+  .slide.active .bar-fill { transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+
+  /* ───────── Glow ───────── */
+  .glow-bg {
+    position: absolute; top: 50%; left: 50%;
+    width: 600px; height: 600px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, oklch(0.5 0.12 80 / 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .glow-red {
+    position: absolute; top: 50%; left: 50%;
+    width: 500px; height: 500px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, oklch(0.4 0.12 25 / 0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ───────── Service icon ───────── */
+  .icon-circle {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: grid; place-items: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .icon-circle.gold { background: linear-gradient(135deg, var(--gold-1), var(--gold-4)); color: #0a0b0f; }
+  .icon-circle.dark { background: var(--surface-2); }
+
+  /* ───────── CTA ───────── */
+  .cta-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 100px; padding: 8px 20px;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+  }
+  .dot-pulse {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green); animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* ───────── Fullscreen ───────── */
+  .fs-btn {
+    position: fixed; top: 16px; right: 24px; z-index: 100;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 14px; cursor: pointer;
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    font-family: inherit; letter-spacing: 0.1em;
+    transition: opacity 0.3s;
+  }
+  .fs-btn:hover { opacity: 0.7; }
+
+  /* ───────── Comparison table ───────── */
+  .comparison { width: 100%; max-width: 800px; border-collapse: separate; border-spacing: 0; }
+  .comparison th, .comparison td { padding: 14px 20px; text-align: left; font-size: 14px; border-bottom: 1px solid var(--border); }
+  .comparison th { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+  .comparison td:first-child { color: var(--muted); font-weight: 600; }
+  .comparison .col-them { color: var(--red); }
+  .comparison .col-atlas { font-weight: 700; }
+
+  /* ───────── Fonte badge ───────── */
+  .source-badge {
+    display: inline-block; margin-top: 16px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    color: var(--muted); opacity: 0.6;
+    padding: 4px 12px; border: 1px solid var(--border); border-radius: 100px;
+  }
+
+  /* ───────── Vertical divider text ───────── */
+  .vs-divider {
+    display: flex; align-items: center; gap: 24px; width: 100%; max-width: 860px;
+  }
+  .vs-line { flex: 1; height: 1px; background: var(--border); }
+  .vs-text { font-size: 12px; font-weight: 800; letter-spacing: 0.3em; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ════════════ SLIDE 1: COVER ════════════ -->
+  <div class="slide" data-slide="0">
+    <div class="glow-bg"></div>
+    <img src="/atlas-logo.png" alt="Atlas" class="logo-big frag" style="mix-blend-mode:screen;" />
+    <div class="subtitle frag" style="margin-bottom:20px;">Assessoria de Marketing para Brasileiros no Exterior</div>
+    <h1 class="heading frag">
+      Fazemos negócios de brasileiros<br/>
+      no exterior <span class="text-gold">venderem mais.</span>
+    </h1>
+    <p class="body-text frag" style="margin-top:20px;">
+      A assessoria de marketing completa, feita exclusivamente<br/>para quem teve a coragem de empreender fora do Brasil.
+    </p>
+  </div>
+
+  <!-- ════════════ SLIDE 2: MERCADO — DADOS ════════════ -->
+  <div class="slide" data-slide="1">
+    <div class="subtitle frag">O mercado</div>
+    <h2 class="heading-sm frag" style="margin-top:16px; margin-bottom:44px;">
+      <span class="text-gold">5,29 milhões</span> de brasileiros<br/>vivem fora do país hoje.
+    </h2>
+    <div class="grid-3 frag">
+      <div class="panel" style="text-align:center;">
+        <div class="stat-number text-gold">2M</div>
+        <div class="stat-label">Nos Estados<br/>Unidos</div>
+        <div class="source-badge">Itamaraty 2025</div>
+      </div>
+      <div class="panel" style="text-align:center;">
+        <div class="stat-number text-gold">1,87M</div>
+        <div class="stat-label">Na<br/>Europa</div>
+        <div class="source-badge">Itamaraty 2025</div>
+      </div>
+      <div class="panel" style="text-align:center;">
+        <div class="stat-number text-gold">1,42M</div>
+        <div class="stat-label">Resto do<br/>mundo</div>
+        <div class="source-badge">Itamaraty 2025</div>
+      </div>
+    </div>
+    <p class="body-text frag" style="margin-top:28px;">
+      E esse número cresce a cada ano. O brasileiro é o imigrante que mais empreende<br/>nos países onde chega.
+    </p>
+  </div>
+
+  <!-- ════════════ SLIDE 3: EMPREENDEDORISMO ════════════ -->
+  <div class="slide" data-slide="2">
+    <div class="glow-bg"></div>
+    <div class="subtitle frag">Espírito empreendedor</div>
+    <h2 class="heading frag" style="margin-top:16px;">
+      O brasileiro empreende <span class="text-gold">2x mais</span><br/>
+      que a população local.
+    </h2>
+    <div class="grid-2 frag" style="margin-top:44px;">
+      <div class="panel-gold" style="text-align:center;">
+        <div class="stat-number" style="font-size:clamp(48px,8vw,88px);">~80%</div>
+        <div class="stat-label" style="font-size:13px; max-width:220px; margin:8px auto 0;">vão para fora com<br/>intenção de empreender</div>
+      </div>
+      <div class="panel" style="padding:28px;">
+        <div style="font-size:14px; font-weight:700; margin-bottom:16px;">Principais segmentos</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:20px;">🍔</span>
+            <span class="small-text" style="color:#e8e8ec; font-weight:600;">Restaurantes & Food Service</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:20px;">💇</span>
+            <span class="small-text" style="color:#e8e8ec; font-weight:600;">Beleza & Estética</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:20px;">🔧</span>
+            <span class="small-text" style="color:#e8e8ec; font-weight:600;">Construção & Serviços</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:20px;">🏠</span>
+            <span class="small-text" style="color:#e8e8ec; font-weight:600;">Imobiliárias & Real Estate</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:20px;">🛒</span>
+            <span class="small-text" style="color:#e8e8ec; font-weight:600;">E-commerce & Varejo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SLIDE 4: O PROBLEMA ════════════ -->
+  <div class="slide" data-slide="3">
+    <div class="glow-red"></div>
+    <div class="subtitle frag">O problema</div>
+    <h2 class="heading-sm frag" style="margin-top:16px; margin-bottom:40px;">
+      Mas quem cuida do <span class="text-red">marketing</span> deles?
+    </h2>
+    <div class="grid-3 frag">
+      <div class="panel-red" style="text-align:center;">
+        <div class="stat-number text-red">72%</div>
+        <div class="stat-label">das empresas estão<br/>insatisfeitas com<br/>suas agências</div>
+        <div class="source-badge">Cronuts Digital 2024</div>
+      </div>
+      <div class="panel-red" style="text-align:center;">
+        <div class="stat-number text-red">62%</div>
+        <div class="stat-label">citam falta de<br/>resultados<br/>mensuráveis</div>
+        <div class="source-badge">Forbes 2024</div>
+      </div>
+      <div class="panel-red" style="text-align:center;">
+        <div class="stat-number text-red">73%</div>
+        <div class="stat-label">não confiam que<br/>sua estratégia de<br/>mkt funciona</div>
+        <div class="source-badge">Constant Contact 2025</div>
+      </div>
+    </div>
+    <p class="body-text frag" style="margin-top:28px;">
+      Agências locais não entendem o brasileiro. Agências brasileiras não entendem o mercado de lá.<br/>
+      <strong style="color:#e8e8ec;">O resultado? Dinheiro queimado em ads e vendas estagnadas.</strong>
+    </p>
+  </div>
+
+  <!-- ════════════ SLIDE 5: PROPÓSITO ════════════ -->
+  <div class="slide" data-slide="4">
+    <div class="glow-bg"></div>
+    <div class="subtitle frag">Nosso propósito</div>
+    <div class="frag" style="margin-top:24px;">
+      <p class="quote-text">
+        "Admiramos profundamente quem se arrisca.<br/>
+        Quem largou tudo, cruzou um oceano e deu tudo de si<br/>
+        para fazer dar certo em outro país."
+      </p>
+    </div>
+    <div class="frag" style="margin-top:32px; max-width:680px; text-align:center;">
+      <p class="body-text" style="margin-bottom:20px;">
+        Acontece que, ao confiar em agências que não cuidam direito do negócio deles, muitos acabam gastando fortunas em anúncios — e ficam no vermelho.
+      </p>
+      <p style="font-size:clamp(16px, 2vw, 20px); font-weight:800; color:#e8e8ec; line-height:1.5;">
+        Nosso propósito é levar cada um deles até a <span class="text-gold">escala</span> —<br/>
+        com uma assessoria que identifica o que você precisa,<br/>
+        cuida de tudo, por um preço que <span class="text-gold">cabe no bolso</span>.
+      </p>
+    </div>
+    <div class="frag" style="margin-top:24px;">
+      <p style="font-size:14px; color:var(--muted); font-weight:600;">
+        Nosso foco não é lucrar em cima de ninguém.<br/>
+        É estar ao lado de quem visa o <strong style="color:#e8e8ec;">crescimento</strong>.
+      </p>
+    </div>
+  </div>
+
+  <!-- ════════════ SLIDE 6: O QUE SOMOS ════════════ -->
+  <div class="slide" data-slide="5">
+    <div class="subtitle frag">Quem somos</div>
+    <h2 class="heading-sm frag" style="margin-top:16px;">
+      Não somos uma agência.<br/>
+      Somos a <span class="text-gold">Assessoria Atlas</span>.<br/>
+      Feita para o brasileiro no exterior.
+    </h2>
+
+    <div class="vs-divider frag" style="margin-top:40px; margin-bottom:28px;">
+      <div class="vs-line"></div>
+      <div class="vs-text">COMPARATIVO</div>
+      <div class="vs-line"></div>
+    </div>
+
+    <table class="comparison frag">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="col-them">Agência Comum</th>
+          <th class="col-atlas"><span class="text-gold">Assessoria Atlas</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Entende o brasileiro?</td>
+          <td class="col-them">✗ Não</td>
+          <td class="col-atlas">✓ 100%</td>
+        </tr>
+        <tr>
+          <td>Fala a língua do mercado?</td>
+          <td class="col-them">✗ Só uma</td>
+          <td class="col-atlas">✓ Bilíngue</td>
+        </tr>
+        <tr>
+          <td>Foco em resultado?</td>
+          <td class="col-them">✗ Métricas de vaidade</td>
+          <td class="col-atlas">✓ Faturamento real</td>
+        </tr>
+        <tr>
+          <td>Cuida de tudo?</td>
+          <td class="col-them">✗ Só uma ponta</td>
+          <td class="col-atlas">✓ De ponta a ponta</td>
+        </tr>
+        <tr>
+          <td>Preço acessível?</td>
+          <td class="col-them">✗ Caro e engessado</td>
+          <td class="col-atlas">✓ Cabe no bolso</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ SLIDE 7: MÉTODO ════════════ -->
+  <div class="slide" data-slide="6">
+    <div class="subtitle frag">O método Atlas</div>
+    <h2 class="heading-sm frag" style="margin-top:16px; margin-bottom:40px;">
+      Um método comprovado para o seu negócio<br/>
+      <span class="text-gold">nunca parar de vender</span>
+    </h2>
+    <div class="grid-3 frag">
+      <div class="step-box">
+        <div class="step-num">01</div>
+        <div class="step-title">Diagnóstico</div>
+        <p class="small-text" style="margin-top:4px;">Análise completa do mercado, concorrência e oportunidades locais.</p>
+      </div>
+      <div class="step-box">
+        <div class="step-num">02</div>
+        <div class="step-title">Posicionamento</div>
+        <p class="small-text" style="margin-top:4px;">Marca, mensagem e identidade bilíngue que destacam.</p>
+      </div>
+      <div class="step-box">
+        <div class="step-num">03</div>
+        <div class="step-title">Tráfego</div>
+        <p class="small-text" style="margin-top:4px;">Meta Ads e Google Ads com segmentação precisa.</p>
+      </div>
+      <div class="step-box">
+        <div class="step-num">04</div>
+        <div class="step-title">Atendimento</div>
+        <p class="small-text" style="margin-top:4px;">Scripts, funil e estruturação comercial pra converter.</p>
+      </div>
+      <div class="step-box">
+        <div class="step-num">05</div>
+        <div class="step-title">Retenção</div>
+        <p class="small-text" style="margin-top:4px;">WhatsApp, e-mail e ações de recompra para fidelizar.</p>
+      </div>
+      <div class="step-box">
+        <div class="step-num">06</div>
+        <div class="step-title">Escala</div>
+        <p class="small-text" style="margin-top:4px;">Ampliar o que funciona. Mais canais, mais regiões.</p>
+      </div>
+    </div>
+    <p class="body-text frag" style="margin-top:24px;">
+      Um ciclo contínuo: entendemos o seu mercado, posicionamos a marca,<br/>
+      geramos demanda e escalamos o resultado.
+    </p>
+  </div>
+
+  <!-- ════════════ SLIDE 8: SERVIÇOS ════════════ -->
+  <div class="slide" data-slide="7">
+    <div class="subtitle frag">Serviços</div>
+    <h2 class="heading-sm frag" style="margin-top:16px; margin-bottom:36px;">
+      A <span class="text-gold">Assessoria Atlas</span> cuida do<br/>marketing do seu negócio de ponta a ponta
+    </h2>
+    <div class="grid-3 frag">
+      <div class="panel" style="display:flex; gap:14px; align-items:flex-start; padding:22px;">
+        <div class="icon-circle gold">📢</div>
+        <div>
+          <div style="font-size:14px; font-weight:700;">Tráfego pago</div>
+          <p class="small-text" style="margin-top:4px;">Meta Ads e Google Ads segmentados para brasileiros e público local.</p>
+        </div>
+      </div>
+      <div class="panel" style="display:flex; gap:14px; align-items:flex-start; padding:22px;">
+        <div class="icon-circle gold">📱</div>
+        <div>
+          <div style="font-size:14px; font-weight:700;">Gestão de redes sociais</div>
+          <p class="small-text" style="margin-top:4px;">Conteúdo, calendário e criativos que constroem autoridade.</p>
+        </div>
+      </div>
+      <div class="panel" style="display:flex; gap:14px; align-items:flex-start; padding:22px;">
+        <div class="icon-circle gold">💻</div>
+        <div>
+          <div style="font-size:14px; font-weight:700;">Site e Landing Pages</div>
+          <p class="small-text" style="margin-top:4px;">Páginas de alta conversão, rápidas e prontas para anúncios.</p>
+        </div>
+      </div>
+      <div class="panel" style="display:flex; gap:14px; align-items:flex-start; padding:22px;">
+        <div class="icon-circle gold">💬</div>
+        <div>
+          <div style="font-size:14px; font-weight:700;">Disparo inteligente</div>
+          <p class="small-text" style="margin-top:4px;">WhatsApp e SMS para reativar clientes e aumentar recompra.</p>
+        </div>
+      </div>
+      <div class="panel" style="display:flex; gap:14px; align-items:flex-start; padding:22px;">
+        <div class="icon-circle gold">🎧</div>
+        <div>
+          <div style="font-size:14px; font-weight:700;">Gestão comercial</div>
+          <p class="small-text" style="margin-top:4px;">Scripts, funil e acompanhamento para o lead virar venda.</p>
+        </div>
+      </div>
+      <div class="panel" style="display:flex; gap:14px; align-items:flex-start; padding:22px;">
+        <div class="icon-circle gold">🗣️</div>
+        <div>
+          <div style="font-size:14px; font-weight:700;">Branding bilíngue</div>
+          <p class="small-text" style="margin-top:4px;">Identidade e mensagem que funcionam em dois idiomas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SLIDE 9: RESULTADOS ════════════ -->
+  <div class="slide" data-slide="8">
+    <div class="glow-bg"></div>
+    <div class="subtitle frag">Resultados</div>
+    <h2 class="heading-sm frag" style="margin-top:16px; margin-bottom:48px;">
+      Os números <span class="text-gold">falam por nós.</span>
+    </h2>
+    <div class="grid-4 frag">
+      <div class="panel" style="text-align:center;">
+        <div class="stat-number text-gold">15x</div>
+        <div class="stat-label">Retorno sobre<br/>investimento</div>
+      </div>
+      <div class="panel" style="text-align:center;">
+        <div class="stat-number">+50</div>
+        <div class="stat-label">Clientes<br/>ativos</div>
+      </div>
+      <div class="panel" style="text-align:center;">
+        <div class="stat-number">+10</div>
+        <div class="stat-label">Países<br/>atendidos</div>
+      </div>
+      <div class="panel" style="text-align:center;">
+        <div class="stat-number text-gold">+200%</div>
+        <div class="stat-label">Clientes em<br/>90 dias</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SLIDE 10: PRESENÇA GLOBAL ════════════ -->
+  <div class="slide" data-slide="9">
+    <div class="subtitle frag">Onde atuamos</div>
+    <h2 class="heading-sm frag" style="margin-top:16px; margin-bottom:40px;">
+      Presença em <span class="text-gold">mais de 10 países</span>
+    </h2>
+    <div style="width:100%; max-width:780px;" class="frag">
+      <div class="bar-row">
+        <div class="bar-label">🇺🇸 EUA</div>
+        <div class="bar-track"><div class="bar-fill" data-width="90" style="width:0%; background:linear-gradient(90deg, var(--gold-1), var(--gold-4));">35%</div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">🇵🇹 Portugal</div>
+        <div class="bar-track"><div class="bar-fill" data-width="60" style="width:0%; background:linear-gradient(90deg, var(--gold-1), var(--gold-3));">20%</div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">🇮🇪 Irlanda</div>
+        <div class="bar-track"><div class="bar-fill" data-width="45" style="width:0%; background:linear-gradient(90deg, var(--gold-2), var(--gold-3));">14%</div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">🇬🇧 Reino Unido</div>
+        <div class="bar-track"><div class="bar-fill" data-width="35" style="width:0%; background:linear-gradient(90deg, var(--gold-2), var(--gold-4));">11%</div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">🇨🇦 Canadá</div>
+        <div class="bar-track"><div class="bar-fill" data-width="25" style="width:0%; background:linear-gradient(90deg, var(--gold-1), var(--gold-2));">8%</div></div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">🇪🇸🇮🇹🇩🇪 Outros</div>
+        <div class="bar-track"><div class="bar-fill" data-width="20" style="width:0%; background:linear-gradient(90deg, var(--gold-3), var(--gold-4));">12%</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SLIDE 11: VISÃO ════════════ -->
+  <div class="slide" data-slide="10">
+    <div class="glow-bg"></div>
+    <div class="subtitle frag">Nossa visão</div>
+    <h2 class="heading frag" style="margin-top:20px;">
+      Ser a maior assessoria de marketing<br/>
+      para brasileiros no exterior<br/>
+      <span class="text-gold">do mundo.</span>
+    </h2>
+    <div class="frag" style="margin-top:40px; max-width:680px; text-align:center;">
+      <p class="body-text">
+        Onde houver um brasileiro empreendendo, a Atlas vai estar lá — com estratégia, 
+        tecnologia e um time que fala a sua língua e entende o seu mercado.
+      </p>
+    </div>
+    <div class="grid-3 frag" style="margin-top:40px; max-width:800px;">
+      <div class="panel" style="text-align:center; padding:24px;">
+        <div style="font-size:28px; margin-bottom:8px;">🌍</div>
+        <div style="font-size:14px; font-weight:700;">Global</div>
+        <p class="small-text" style="margin-top:4px;">Operação 100% remota e internacional</p>
+      </div>
+      <div class="panel" style="text-align:center; padding:24px;">
+        <div style="font-size:28px; margin-bottom:8px;">📈</div>
+        <div style="font-size:14px; font-weight:700;">Escalável</div>
+        <p class="small-text" style="margin-top:4px;">Novo país = mesmo custo operacional</p>
+      </div>
+      <div class="panel" style="text-align:center; padding:24px;">
+        <div style="font-size:28px; margin-bottom:8px;">🔄</div>
+        <div style="font-size:14px; font-weight:700;">Recorrente</div>
+        <p class="small-text" style="margin-top:4px;">Modelo de assessoria mensal com alta retenção</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SLIDE 12: INVESTIDOR ════════════ -->
+  <div class="slide" data-slide="11">
+    <div class="subtitle frag">Oportunidade</div>
+    <h2 class="heading-sm frag" style="margin-top:16px; margin-bottom:44px;">
+      Um mercado de <span class="text-gold">5,29 milhões</span> de pessoas<br/>
+      e ninguém atende como a Atlas.
+    </h2>
+    <div class="grid-2 frag" style="max-width:820px;">
+      <div class="panel" style="padding:24px;">
+        <div style="font-size:20px; font-weight:900;" class="text-gold">Mercado crescente</div>
+        <p class="small-text" style="margin-top:8px;">Brasileiros são a comunidade estrangeira que mais cresce nos EUA, Europa e Oceania. Cada novo empreendedor é um potencial cliente Atlas.</p>
+      </div>
+      <div class="panel" style="padding:24px;">
+        <div style="font-size:20px; font-weight:900;" class="text-gold">Receita recorrente</div>
+        <p class="small-text" style="margin-top:8px;">Modelo de assessoria mensal com alta retenção — resultados medidos em faturamento, não em métricas de vaidade.</p>
+      </div>
+      <div class="panel" style="padding:24px;">
+        <div style="font-size:20px; font-weight:900;" class="text-gold">Escalabilidade</div>
+        <p class="small-text" style="margin-top:8px;">Operação 100% remota. Atender um novo país custa o mesmo que atender o próximo cliente na mesma cidade.</p>
+      </div>
+      <div class="panel" style="padding:24px;">
+        <div style="font-size:20px; font-weight:900;" class="text-gold">Defensibilidade</div>
+        <p class="small-text" style="margin-top:8px;">Know-how cultural exclusivo e CRM proprietário que gera inteligência sobre o mercado brasileiro no exterior.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ SLIDE 13: CTA FINAL ════════════ -->
+  <div class="slide" data-slide="12">
+    <div class="glow-bg"></div>
+    <img src="/atlas-logo.png" alt="Atlas" class="logo-big frag" style="mix-blend-mode:screen;" />
+    <h2 class="heading frag">
+      Seu negócio fora do Brasil<br/>
+      pode vender <span class="text-gold">todos os dias.</span>
+    </h2>
+    <p class="body-text frag" style="margin-top:20px;">
+      Fale com um especialista Atlas e receba um diagnóstico gratuito.
+    </p>
+    <div class="frag" style="margin-top:28px;">
+      <div class="cta-badge">
+        <span class="dot-pulse"></span>
+        Especialistas online agora
+      </div>
+    </div>
+    <div class="frag" style="margin-top:24px; text-align:center;">
+      <div style="font-size:15px; font-weight:700; color:var(--silver);">assessoriaatlas.com</div>
+      <div style="font-size:13px; color:var(--muted); margin-top:4px;">@assessoriaatlass</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Progress -->
+<div class="progress-bar" id="progress"></div>
+<div class="slide-counter" id="counter"></div>
+<div class="nav-hint"><kbd>←</kbd> <kbd>→</kbd> navegar &nbsp; <kbd>F</kbd> fullscreen</div>
+<button class="fs-btn" id="fsBtn" onclick="toggleFullscreen()">⛶ FULLSCREEN</button>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let current = 0;
+
+  function animateBars(slide) {
+    slide.querySelectorAll('.bar-fill[data-width]').forEach(bar => {
+      setTimeout(() => {
+        bar.style.width = bar.dataset.width + '%';
+      }, 400);
+    });
+  }
+
+  function resetBars(slide) {
+    slide.querySelectorAll('.bar-fill[data-width]').forEach(bar => {
+      bar.style.width = '0%';
+    });
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= totalSlides) return;
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev');
+      if (i === index) {
+        s.classList.add('active');
+        setTimeout(() => {
+          s.querySelectorAll('.frag').forEach(f => f.classList.add('visible'));
+        }, 100);
+        animateBars(s);
+      } else if (i < index) {
+        s.classList.add('prev');
+        s.querySelectorAll('.frag').forEach(f => f.classList.remove('visible'));
+        resetBars(s);
+      } else {
+        s.querySelectorAll('.frag').forEach(f => f.classList.remove('visible'));
+        resetBars(s);
+      }
+    });
+    current = index;
+    document.getElementById('progress').style.width = ((current + 1) / totalSlides * 100) + '%';
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + totalSlides;
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); prev(); }
+    if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+    if (e.key === 'Home') goTo(0);
+    if (e.key === 'End') goTo(totalSlides - 1);
+  });
+
+  document.getElementById('deck').addEventListener('click', (e) => {
+    if (e.target.closest('button, a')) return;
+    const x = e.clientX / window.innerWidth;
+    x < 0.3 ? prev() : next();
+  });
+
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+  });
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  goTo(0);
+</script>
+
+</body>
+</html>
